@@ -1,8 +1,7 @@
 import streamlit as st
-import pulp
 import pandas as pd
 
-st.title("Ottimizzatore Taglio Barre Lego 🔧")
+st.title("Calcolo Taglio Profili 🔧")
 st.write("Inserisci le misure delle aperture e ottieni il piano di taglio ottimale")
 
 # Lunghezza barra standard
@@ -19,28 +18,56 @@ pezzi_necessari = []
 
 for i in range(num_aperture):
     st.write(f"**Apertura {i+1}**")
+    
     col1, col2 = st.columns(2)
+    
     with col1:
-        altezza = st.number_input(f"Altezza (cm)", min_value=1, max_value=600, value=100, key=f"alt_{i}")
+        altezza_sx = st.number_input(f"Altezza SX (cm)", min_value=1, max_value=600, value=100, key=f"alt_sx_{i}")
+    
     with col2:
-        larghezza = st.number_input(f"Larghezza (cm)", min_value=1, max_value=600, value=100, key=f"lar_{i}")
+        altezza_diversa = st.checkbox("Altezza DX diversa?", key=f"check_alt_{i}")
+    
+    if altezza_diversa:
+        altezza_dx = st.number_input(f"Altezza DX (cm)", min_value=1, max_value=600, value=100, key=f"alt_dx_{i}")
+    else:
+        altezza_dx = altezza_sx
+    
+    col3, col4 = st.columns(2)
+    
+    with col3:
+        larghezza_sotto = st.number_input(f"Larghezza sotto (cm)", min_value=1, max_value=600, value=100, key=f"lar_sotto_{i}")
+    
+    with col4:
+        larghezza_doppia = st.checkbox("Larghezza sopra diversa?", key=f"check_lar_{i}")
+    
+    if larghezza_doppia:
+        larghezza_sopra = st.number_input(f"Larghezza sopra (cm)", min_value=1, max_value=600, value=100, key=f"lar_sopra_{i}")
+    else:
+        larghezza_sopra = None
     
     aperture_data.append({
         'numero': i+1,
-        'altezza': altezza,
-        'larghezza': larghezza
+        'altezza_sx': altezza_sx,
+        'altezza_dx': altezza_dx,
+        'larghezza_sotto': larghezza_sotto,
+        'larghezza_sopra': larghezza_sopra
     })
     
-    # Ogni apertura richiede 2 pezzi altezza + 1 pezzo larghezza
-    pezzi_necessari.append(('Altezza SX', f'Apertura {i+1}', altezza))
-    pezzi_necessari.append(('Altezza DX', f'Apertura {i+1}', altezza))
-    pezzi_necessari.append(('Larghezza', f'Apertura {i+1}', larghezza))
+    # Aggiungi i pezzi necessari
+    pezzi_necessari.append(('Altezza SX', f'Apertura {i+1}', altezza_sx))
+    pezzi_necessari.append(('Altezza DX', f'Apertura {i+1}', altezza_dx))
+    pezzi_necessari.append(('Larghezza sotto', f'Apertura {i+1}', larghezza_sotto))
+    
+    if larghezza_sopra:
+        pezzi_necessari.append(('Larghezza sopra', f'Apertura {i+1}', larghezza_sopra))
+    
+    st.divider()
 
 # Bottone calcolo
-if st.button("Calcola Piano di Taglio Ottimale"):
+if st.button("Calcola Piano di Taglio Ottimale", type="primary"):
     with st.spinner("Ottimizzazione in corso..."):
         
-        # Algoritmo First Fit Decreasing (euristica semplice ed efficace)
+        # Algoritmo First Fit Decreasing
         pezzi_ordinati = sorted(pezzi_necessari, key=lambda x: x[2], reverse=True)
         
         barre = []
