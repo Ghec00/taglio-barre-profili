@@ -35,31 +35,31 @@ for i in range(num_aperture):
     col3, col4 = st.columns(2)
     
     with col3:
-        larghezza_sotto = st.number_input(f"Larghezza sotto (cm)", min_value=1, max_value=600, value=100, key=f"lar_sotto_{i}")
+        larghezza_sopra = st.number_input(f"Larghezza sopra (cm)", min_value=1, max_value=600, value=100, key=f"lar_sopra_{i}")
     
     with col4:
-        larghezza_doppia = st.checkbox("Larghezza sopra diversa?", key=f"check_lar_{i}")
+        larghezza_doppia = st.checkbox("Aggiungere larghezza sotto?", key=f"check_lar_{i}")
     
     if larghezza_doppia:
-        larghezza_sopra = st.number_input(f"Larghezza sopra (cm)", min_value=1, max_value=600, value=100, key=f"lar_sopra_{i}")
+        larghezza_sotto = st.number_input(f"Larghezza sotto (cm)", min_value=1, max_value=600, value=100, key=f"lar_sotto_{i}")
     else:
-        larghezza_sopra = None
+        larghezza_sotto = None
     
     aperture_data.append({
         'numero': i+1,
         'altezza_sx': altezza_sx,
         'altezza_dx': altezza_dx,
-        'larghezza_sotto': larghezza_sotto,
-        'larghezza_sopra': larghezza_sopra
+        'larghezza_sopra': larghezza_sopra,
+        'larghezza_sotto': larghezza_sotto
     })
     
     # Aggiungi i pezzi necessari
     pezzi_necessari.append(('Altezza SX', f'Apertura {i+1}', altezza_sx))
     pezzi_necessari.append(('Altezza DX', f'Apertura {i+1}', altezza_dx))
-    pezzi_necessari.append(('Larghezza sotto', f'Apertura {i+1}', larghezza_sotto))
+    pezzi_necessari.append(('Larghezza sopra', f'Apertura {i+1}', larghezza_sopra))
     
-    if larghezza_sopra:
-        pezzi_necessari.append(('Larghezza sopra', f'Apertura {i+1}', larghezza_sopra))
+    if larghezza_sotto:
+        pezzi_necessari.append(('Larghezza sotto', f'Apertura {i+1}', larghezza_sotto))
     
     st.divider()
 
@@ -144,3 +144,4 @@ if st.button("Calcola Piano di Taglio Ottimale", type="primary"):
                     st.write(f"{idx}. {tipo} per {apertura}: **{lunghezza} cm**")
                 spreco = LUNGHEZZA_BARRA - sum([p[2] for p in barra['pezzi']])
                 st.write(f"*Avanzo: {spreco} cm*")
+
