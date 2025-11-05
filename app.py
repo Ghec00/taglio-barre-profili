@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 
 st.title("Calcolo Taglio Profili 🔧")
-st.write("Inserisci le misure delle aperture e ottieni il piano di taglio ottimale")
+st.write("Inserisci le misure delle aperture e ottieni il piano di taglio ottimale in millimetri")
 
-# Lunghezza barra standard
-LUNGHEZZA_BARRA = 600  # 6 metri = 600 cm
+# Lunghezza barra standard in mm
+LUNGHEZZA_BARRA = 6000  # 6 metri = 6000 mm
 
 # Input dati
 st.subheader("Inserisci le Aperture")
@@ -22,26 +22,26 @@ for i in range(num_aperture):
     col1, col2 = st.columns(2)
     
     with col1:
-        altezza_sx = st.number_input(f"Altezza SX (cm)", min_value=1, max_value=600, value=100, key=f"alt_sx_{i}")
+        altezza_sx = st.number_input(f"Altezza SX (mm)", min_value=1, max_value=6000, value=1000, step=1, key=f"alt_sx_{i}")
     
     with col2:
         altezza_diversa = st.checkbox("Altezza DX diversa?", key=f"check_alt_{i}")
     
     if altezza_diversa:
-        altezza_dx = st.number_input(f"Altezza DX (cm)", min_value=1, max_value=600, value=100, key=f"alt_dx_{i}")
+        altezza_dx = st.number_input(f"Altezza DX (mm)", min_value=1, max_value=6000, value=1000, step=1, key=f"alt_dx_{i}")
     else:
         altezza_dx = altezza_sx
     
     col3, col4 = st.columns(2)
     
     with col3:
-        larghezza_sopra = st.number_input(f"Larghezza sopra (cm)", min_value=1, max_value=600, value=100, key=f"lar_sopra_{i}")
+        larghezza_sopra = st.number_input(f"Larghezza sopra (mm)", min_value=1, max_value=6000, value=1000, step=1, key=f"lar_sopra_{i}")
     
     with col4:
         larghezza_doppia = st.checkbox("Aggiungere larghezza sotto?", key=f"check_lar_{i}")
     
     if larghezza_doppia:
-        larghezza_sotto = st.number_input(f"Larghezza sotto (cm)", min_value=1, max_value=600, value=100, key=f"lar_sotto_{i}")
+        larghezza_sotto = st.number_input(f"Larghezza sotto (mm)", min_value=1, max_value=6000, value=1000, step=1, key=f"lar_sotto_{i}")
     else:
         larghezza_sotto = None
     
@@ -104,7 +104,7 @@ if st.button("Calcola Piano di Taglio Ottimale", type="primary"):
         
         with col2:
             spreco_totale = sum([LUNGHEZZA_BARRA - sum([p[2] for p in b['pezzi']]) for b in barre])
-            st.metric("Spreco totale (cm)", f"{spreco_totale:.0f}")
+            st.metric("Spreco totale (mm)", f"{spreco_totale:.0f}")
         
         with col3:
             percentuale_utilizzo = ((sum([sum([p[2] for p in b['pezzi']]) for b in barre]) / (len(barre) * LUNGHEZZA_BARRA)) * 100)
@@ -118,15 +118,15 @@ if st.button("Calcola Piano di Taglio Ottimale", type="primary"):
             pezzi_str = []
             for pezzo in barra['pezzi']:
                 tipo, apertura, lunghezza = pezzo
-                pezzi_str.append(f"{tipo} {apertura} ({lunghezza}cm)")
+                pezzi_str.append(f"{tipo} {apertura} ({lunghezza}mm)")
             
             spreco = LUNGHEZZA_BARRA - sum([p[2] for p in barra['pezzi']])
             
             piano_taglio_data.append({
                 'Barra #': barra['numero'],
                 'Pezzi da tagliare': ' + '.join(pezzi_str),
-                'Totale usato (cm)': sum([p[2] for p in barra['pezzi']]),
-                'Spreco (cm)': spreco
+                'Totale usato (mm)': sum([p[2] for p in barra['pezzi']]),
+                'Spreco (mm)': spreco
             })
         
         df_piano = pd.DataFrame(piano_taglio_data)
@@ -141,7 +141,6 @@ if st.button("Calcola Piano di Taglio Ottimale", type="primary"):
                 st.write(f"**Prendi una barra da 6 metri e taglia:**")
                 for idx, pezzo in enumerate(barra['pezzi'], 1):
                     tipo, apertura, lunghezza = pezzo
-                    st.write(f"{idx}. {tipo} per {apertura}: **{lunghezza} cm**")
+                    st.write(f"{idx}. {tipo} per {apertura}: **{lunghezza} mm**")
                 spreco = LUNGHEZZA_BARRA - sum([p[2] for p in barra['pezzi']])
-                st.write(f"*Avanzo: {spreco} cm*")
-
+                st.write(f"*Avanzo: {spreco} mm*")
